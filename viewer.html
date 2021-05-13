@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Curious Cat Archive Viewer</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<style type="text/css">
+		@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+		:root {
+		    font-family: Roboto-Regular, Roboto, Helvetica, Arial, sans-serif;
+		    font-weight: 400;
+		    color: rgb(28 28 28);
+		}
+
+		body {
+		    background-color: #f1f1f1;
+		    width: 100%;
+		    margin: 0px;
+		    line-height: 1.1em;
+		}
+
+		header {
+		    background-color: #FFFFFF;
+		    width: auto;
+		    padding: 20px;
+		    display: flex;
+		    justify-content: center;
+		    flex-direction: row;
+		}
+
+		main{
+		    display: flex;
+		    flex-direction: column;
+		}
+
+		#unloaded {
+		    display: flex;
+		    align-items: center;
+		    flex-direction: column;
+		    padding-top: 20vh;
+		}
+
+		#sadFace {
+		    font-size: 200px;
+		    color: rgb(28 28 28);
+		}
+
+		#unloadedMessage {
+		    font-size: 16px;
+		}
+
+		.userBanner {
+		    max-width: 890px;
+		    flex-direction: column;
+		}
+
+		#userBannerImage {
+		    height: 200px;
+		    width: 100%;
+		    background-position: center;
+		}
+
+		#username {
+		    justify-content: center;
+		    padding-top: 40px;
+		    font-size: 29px;
+		    font-family: Roboto-Medium, Roboto, Helvetica, Arial, sans-serif;
+		    font-weight: 500;
+		    line-height: 31.9px;
+		    text-align: center;
+		    vertical-align: top;
+		    color: rgb(28 28 28);
+		}
+
+		#userStats {
+		    display: flex;
+		    justify-content: space-between;
+		    margin-top: 10px;
+		    margin-bottom: 20px;
+		    padding-left: 20px;
+		    padding-right: 20px;
+		}
+
+		.statDisplay {
+		    display: flex;
+		    flex-direction: column;
+		    align-items: center;
+		}
+
+		.number {
+		    font-size: 20px;
+		    color: rgb(28 28 28);
+		}
+
+		.statTag {
+		    font-size: 12px;
+		    color: rgb(28 28 28);
+		}
+
+		#profilePictureBorder {
+		    border-radius: 60px;
+		    border-width: 11px;
+		    height: 120px;
+		    width: 120px;
+		    top: 184px;
+		    position: absolute;
+		    align-self: center;
+		    border-color: rgb(255, 255, 255);
+		    border-style: solid;
+		    box-sizing: border-box;
+		    overflow: hidden;
+		}
+
+		#profilePicture {
+		    z-index: -1;
+		    background-size: cover;
+		    background-position: center center;
+		    bottom: 0px;
+		    right: 0px;
+		    width: 100%;
+		    height: 100%;
+		}
+
+
+
+		.panel {
+		    background-color: #FFFFFF;
+		    width: 100%;
+		    align-self: center;
+		    display: flex;
+		}
+
+		.answer {
+		    max-width: 870px;
+		    padding: 10px;
+		    margin-top: 10px;
+		    flex-direction: column;
+		}
+
+		.question {
+		    font-weight: 500;
+		    font-size: 16px;
+		    color: rgb(28, 28, 28);
+		}
+
+		.author {
+		    display: flex;
+		    flex-direction: row;
+		    flex-wrap: wrap;
+		    margin-top: 5px;
+		    color: rgb(222, 124, 0);
+		    font-size: 14px;
+		}
+
+		.user {
+		    align-items: center;
+		    flex-direction: row;
+		    margin-bottom: 8px;
+		    margin-top: 8px;
+		    display: flex;
+		}
+
+		.postProfileBorder {
+		    border-radius: 22px;
+		    border-width: 4px;
+		    height: 44px;
+		    width: 44px;
+		    align-self: center;
+		    border-color: rgb(241, 241, 241);
+		    border-style: solid;
+		    box-sizing: border-box;
+		    overflow: hidden;
+		    margin-right: 10px;
+		}
+
+		.postProfilePicture {
+		    z-index: -1;
+		    background-size: cover;
+		    background-position: center center;
+		    bottom: 0px;
+		    right: 0px;
+		    width: 100%;
+		    height: 100%;
+		}
+
+		.postUsername {
+		    line-height: 17.6px;
+		    font-weight: 500;
+		    vertical-align: top;
+		    text-align: left;
+		    font-size: 16px;
+		}
+
+		.postDate {
+		    color: rgb(190, 190, 190);
+		    font-weight: 500;
+		    margin-top: 2px;
+		    font-size: 14px;
+		    text-align: left;
+		}
+
+		.reply {
+		    font-size: 16px;
+		}
+
+		.replyImage {
+		    margin-top: 10px;
+		    align-self: center;
+		    background-position: center center;
+		    background-repeat: no-repeat;
+		    background-size: contain;
+		}
+
+		.divider {
+		    margin-top: 10px;
+		    margin-bottom: 15px;
+		    width: 100%;
+		    background-color: rgb(241, 241, 241);
+		    height: 1px;
+		}
+
+		.hearts {
+		    padding-left: 10px;
+		    padding-right: 10px;
+		    font-size: 14px;
+		    height: 20px;
+		    display: flex;
+		    flex-direction: row;
+		    align-items: center;
+		}
+	</style>
+</head>
+<body>
+	<header>
+		<input type="file" id="fileSelector">
+		<svg viewBox="0 0 260 37.056" width="168" height="24" style="color: rgb(64, 64, 64); direction: ltr;"><g fill="currentColor"><path d="M17.737 11.678a9.29 9.29 0 017.41 3.682l5.658-5.12C27.75 6.424 23.08 4.314 17.3 4.314 7.32 4.314 0 11.094 0 20.66s7.32 16.345 17.3 16.345c5.792 0 10.462-2.1 13.516-5.927l-5.658-5.12a9.29 9.29 0 01-7.41 3.682c-5.163 0-8.756-3.592-8.756-8.98s3.592-8.98 8.756-8.98zm32.107 12.08c0 4.086-2.065 5.748-4.58 5.748-2.56 0-4.04-1.482-4.04-5.254V12.038H32.7v13.606c0 7.724 4.356 11.136 10.328 11.136a9.59 9.59 0 007.229-3.009v2.6h2.864a5.264 5.264 0 005.264-5.264v-19.07h-8.532zm31.748 12.618h3.268a5.264 5.264 0 005.263-5.264V12.038H81.6zm58.958-12.618c0 4.086-2.065 5.748-4.58 5.748-2.56 0-4.04-1.482-4.04-5.254V12.038h-8.532v13.606c0 7.724 4.356 11.136 10.328 11.136a9.59 9.59 0 007.229-3.009v2.6h2.864a5.264 5.264 0 005.264-5.264v-19.07h-8.532zm28.73-1.502c-4.1-1.326-9.2-.847-9.2-2.854 0-.9 1.033-1.706 3.907-1.706a14.43 14.43 0 014.975.872v-.04a21.66 21.66 0 01.886-6.2 25.55 25.55 0 00-5.9-.693c-7.634 0-11.855 3.5-11.855 8.083 0 9.744 14.37 6.017 14.37 9.295.005.208-.042.414-.135.6-.158.307-.7 1.088-3.682 1.065a19.35 19.35 0 01-6.335-1.2 30.85 30.85 0 01-4.737-2.105l.013 3.425a5.26 5.26 0 003.844 5.051 26.54 26.54 0 006.946.933c5.994 0 9.813-2.017 11.3-4.95a19.75 19.75 0 01-4.407-9.578z"></path><rect width="9.071" height="9.071" rx="4.535" x="81.323" y="0.273"></rect><path d="M106.828 11.634c-7.948 0-13.74 5.2-13.74 12.528 0 7.365 5.792 12.618 13.74 12.618 8.038 0 13.74-5.254 13.74-12.618 0-7.32-5.703-12.528-13.74-12.528zm0 18.365c-2.874 0-5.12-2.1-5.12-5.838 0-3.682 2.245-5.747 5.12-5.747 2.918 0 5.12 2.065 5.12 5.747.001 3.728-2.2 5.838-5.12 5.838zM79.122 11.63v2.93a5.284 5.284 0 01-3.7 4.97 5.985 5.985 0 00-3.327 2.574 5.71 5.71 0 00-.74 3.088v5.917a5.27 5.27 0 01-1.54 3.723 5.25 5.25 0 01-3.723 1.54h-3.268V12.03h8.127v2.92c1.75-2.2 4.58-3.32 8.17-3.32z"></path></g><path d="M171.07 18.528C171.07 7.686 179.37 0 190.67 0c6.566 0 11.86 2.392 15.32 6.72l-6.414 5.8a10.53 10.53 0 00-8.4-4.174c-5.854 0-9.926 4.072-9.926 10.18s4.073 10.18 9.926 10.18a10.53 10.53 0 008.4-4.174l6.414 5.8c-3.46 4.327-8.755 6.72-15.32 6.72-11.303.005-19.6-7.68-19.6-18.523zm88.903 12.968a5.21 5.21 0 01-4.482 5.166 18.01 18.01 0 01-2.264.14c-7.076 0-11.147-3.46-11.147-10.536V2.596h9.67v7.177H258v1.26A5.97 5.97 0 01252.044 17h-.295v9.16a3.017 3.017 0 00.76 2.317 3.01 3.01 0 002.226.995 7.88 7.88 0 005.264-1.579l-.028 3.603zM237.14 8.755v21.623c0 1.583-.63 3.1-1.748 4.22a5.96 5.96 0 01-4.22 1.748h-3.246v-2.75c-1.832 2.2-4.53 3.207-8.145 3.207-7.483 0-13.54-5.5-13.54-14.3 0-8.755 6.057-14.2 13.54-14.2 2.847-.16 5.633.873 7.687 2.85V8.76zM227.62 22.5c0-4.173-2.545-6.515-5.8-6.515s-5.8 2.342-5.8 6.515c0 4.225 2.545 6.617 5.8 6.617s5.8-2.393 5.8-6.618z" fill="#de7c00"></path></svg>
+	</header>
+	<main id="main">
+		<div id="unloaded">
+			<div id="sadFace" class="material-icons">sentiment_dissatisfied</div>
+			<div id="unloadedMessage">
+				User has not been loaded yet
+			</div>
+		</div>
+
+		<div id="userInfo" class="userBanner panel" style="display: none;">
+			<div id="userBannerImage" style=""></div>
+			<div id="username"></div>
+			<div id="userStats">
+				<div class="statDisplay">
+					<div id="followers" class="number"></div>
+					<div class="statTag">Followers</div>
+				</div>
+				<div class="statDisplay">
+					<div id="answers" class="number"></div>
+					<div class="statTag">Answers</div>
+				</div>
+				<div class="statDisplay">
+					<div id="following" class="number"></div>
+					<div class="statTag">Following</div>
+				</div>
+			</div>
+			<div id="profilePictureBorder" >
+				<div id="profilePicture" style=""></div>
+			</div>
+		</div>
+
+
+		<div id="templateAnswerPanel" class="answer panel" style="display: none;">
+			<div class="question"></div>
+			<div class="author"></div>
+			<div class="user">
+				<div class="icon">
+					<div class="postProfileBorder" >
+						<div class="postProfilePicture"></div>
+					</div>
+				</div>
+				<div class="postUserDetails">
+					<div class="postUsername"></div>
+					<div class="postDate"></div>
+				</div>
+			</div>
+			<div class="reply"></div>
+			<div class="replyImage" style="display: none;"></div>
+			<div class="divider"></div>
+			<div class="hearts">
+				<svg viewBox="0 0 22.891 20" width="20" height="20" style="color: rgb(221, 221, 221); direction: ltr;margin-right: 6px;"><path d="M16.175 0a6.67 6.67 0 00-4.73 1.959 6.69 6.69 0 00-9.46 0l-.026.027a6.69 6.69 0 000 9.46l7.895 7.895a2.25 2.25 0 003.183 0l7.895-7.895a6.69 6.69 0 000-9.46l-.027-.027A6.67 6.67 0 0016.175 0z" fill="currentColor"></path></svg><div class="likeCount"></div>
+			</div>
+		</div>
+
+
+	</main>
+	<script>	
+		var templateAnswerPanel = document.getElementById('templateAnswerPanel');
+		var panelCounter = 0;
+
+		function loadMessage(panelID, Question, Asker, postDate, Reply, Likes, ImageLink) {   
+			//Clone Template Panel
+			var clone = templateAnswerPanel.cloneNode(true); // "deep" clone
+		    clone.id = "panel" + panelID; // there can only be one element with an ID
+
+		    //Set Panel to visible
+		    clone.style = ""
+
+		    //Load Panel DataQuestion;
+		    clone.getElementsByClassName('question')[0].innerText = Question;
+
+		    if (Asker.id) {
+		    	clone.getElementsByClassName('author')[0].innerText = Asker.username;
+		    	clone.getElementsByClassName('author')[0].style	= "font-weight: 500";
+		    } else {
+		    	clone.getElementsByClassName('author')[0].innerText = "Anonymous";
+		    }
+		    
+		    clone.getElementsByClassName('postDate')[0].innerText = postDate;
+		    clone.getElementsByClassName('reply')[0].innerText = Reply;
+		    clone.getElementsByClassName('likeCount')[0].innerText = Likes;
+
+		    if (ImageLink) {
+			    var imageWidth = Math.min(ImageLink.w, 870);
+				var imageHeight = (ImageLink.h/ImageLink.w) * imageWidth;
+				clone.getElementsByClassName('replyImage')[0].style = "background-image:url(" + ImageLink.img + ");height:"+imageHeight+"px;width:"+ imageWidth + "px;";
+		    }
+		    
+		    //Create new panel
+		    templateAnswerPanel.parentNode.appendChild(clone);
+		}
+
+		function loadUserData(Username, Followers, Answers, Following, Banner, ProfilePicture) {
+			var userInfo = document.getElementById('userInfo');
+
+			document.getElementById('username').innerText = Username;
+			document.getElementById('userBannerImage').style = "background-image: url(" + Banner + ")";
+			document.getElementById('followers').innerText = Followers;
+			document.getElementById('answers').innerText = Answers;
+			document.getElementById('following').innerText = Following;
+			document.getElementById('profilePicture').style = "background-image: url(" + ProfilePicture + ")";
+
+
+			document.getElementsByClassName('postProfilePicture')[0].style = "background-image: url(" + ProfilePicture + ")";
+			document.getElementsByClassName('postUsername')[0].innerText = Username;
+
+			userInfo.style = "";
+			document.getElementById('unloaded').style = "display: none;"
+		}
+
+		const fileSelector = document.getElementById('fileSelector');
+		  fileSelector.addEventListener('change', (event) => {
+		    var reader = new FileReader();
+		    
+		    reader.onload = function(event) {
+			    jsonObj = JSON.parse(event.target.result);
+			    jsonLoader(jsonObj);
+			  }
+
+		    reader.readAsText(event.target.files[0]);
+		 });
+
+
+		function jsonLoader(json) {
+			loadUserData(json.username, json.followers, json.answers, json.following, json.banner, json.avatar)
+
+			jsonObj.posts.forEach( function(entry) {
+				try {
+					post = entry.post;
+					date = new Date(post.timestamp * 1000);
+					humanDate = date.getDate() + " " + date.toLocaleString('default', { month: 'short' });
+
+					loadMessage(++panelCounter, post.comment, post.senderData, humanDate, post.reply, post.likes, post.media);
+				} catch(err) {
+					console.log("Error on: " + panelCounter + " [" + json.id + "]")
+					console.log(err)
+				}
+			});
+
+			console.log(panelCounter)
+		}
+	</script>
+</body>
+</html>
