@@ -1,0 +1,224 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+:root {
+    font-family: Roboto-Regular, Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    color: rgb(28 28 28);
+}
+
+body {
+    background-color: #f1f1f1;
+    width: 100%;
+    margin: 0px;
+    line-height: 1.1em;
+}
+
+header {
+    background-color: #FFFFFF;
+    width: auto;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+}
+
+main{
+    display: flex;
+    flex-direction: column;
+}
+
+#unloaded {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding-top: 20vh;
+}
+
+#sadFace {
+    font-size: 200px;
+    color: rgb(28 28 28);
+}
+
+#unloadedMessage {
+    font-size: 16px;
+}
+
+.userBanner {
+    max-width: 890px;
+    flex-direction: column;
+}
+
+#userBannerImage {
+    height: 200px;
+    width: 100%;
+    background-position: center;
+}
+
+#username {
+    justify-content: center;
+    padding-top: 40px;
+    font-size: 29px;
+    font-family: Roboto-Medium, Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    line-height: 31.9px;
+    text-align: center;
+    vertical-align: top;
+    color: rgb(28 28 28);
+}
+
+#userStats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.statDisplay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.number {
+    font-size: 20px;
+    color: rgb(28 28 28);
+}
+
+.statTag {
+    font-size: 12px;
+    color: rgb(28 28 28);
+}
+
+#profilePictureBorder {
+    border-radius: 60px;
+    border-width: 11px;
+    height: 120px;
+    width: 120px;
+    top: 184px;
+    position: absolute;
+    align-self: center;
+    border-color: rgb(255, 255, 255);
+    border-style: solid;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+#profilePicture {
+    z-index: -1;
+    background-size: cover;
+    background-position: center center;
+    bottom: 0px;
+    right: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+
+
+.panel {
+    background-color: #FFFFFF;
+    width: 100%;
+    align-self: center;
+    display: flex;
+}
+
+.answer {
+    max-width: 870px;
+    padding: 10px;
+    margin-top: 10px;
+    flex-direction: column;
+}
+
+.question {
+    font-weight: 500;
+    font-size: 16px;
+    color: rgb(28, 28, 28);
+}
+
+.author {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 5px;
+    color: rgb(222, 124, 0);
+    font-size: 14px;
+}
+
+.user {
+    align-items: center;
+    flex-direction: row;
+    margin-bottom: 8px;
+    margin-top: 8px;
+    display: flex;
+}
+
+.postProfileBorder {
+    border-radius: 22px;
+    border-width: 4px;
+    height: 44px;
+    width: 44px;
+    align-self: center;
+    border-color: rgb(241, 241, 241);
+    border-style: solid;
+    box-sizing: border-box;
+    overflow: hidden;
+    margin-right: 10px;
+}
+
+.postProfilePicture {
+    z-index: -1;
+    background-size: cover;
+    background-position: center center;
+    bottom: 0px;
+    right: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+.postUsername {
+    line-height: 17.6px;
+    font-weight: 500;
+    vertical-align: top;
+    text-align: left;
+    font-size: 16px;
+}
+
+.postDate {
+    color: rgb(190, 190, 190);
+    font-weight: 500;
+    margin-top: 2px;
+    font-size: 14px;
+    text-align: left;
+}
+
+.reply {
+    font-size: 16px;
+}
+
+.replyImage {
+    margin-top: 10px;
+    align-self: center;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.divider {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    width: 100%;
+    background-color: rgb(241, 241, 241);
+    height: 1px;
+}
+
+.hearts {
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 14px;
+    height: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
