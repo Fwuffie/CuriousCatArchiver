@@ -10,3 +10,10 @@ Optionally, use:
 to download a local copy of all the curious cat assets, and create a copy of the json file, that uses the local assets.
   
 Finally the viewer.html file can be used to load and view either json file, like a regular curious cat feed.
+
+
+
+#TODO:
+
+Viewer Needs To Wipe Cards Before Loading A New Profile
+Command Args For Local DL

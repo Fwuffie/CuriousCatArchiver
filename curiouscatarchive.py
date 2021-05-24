@@ -21,10 +21,20 @@ else:
 	f = open(args['Username'])
 	usernames = f.read().splitlines()
 
+downloadLocal = None
+
+while downloadLocal == None:
+	yesno = input("Would you like to download all media attached to the CuriousCat Profile [y/n]: ")
+	if yesno.lower() == "yes" or yesno.lower() == "y":
+		downloadLocal = True
+	if yesno.lower() == "no" or yesno.lower() == "n":
+		print("Please view the json file using the provided viewer.html file.")
+		downloadLocal = False
+	pass
 
 #Main Loop
 for namecount, username in enumerate(usernames):
-	print("Archiving %s, [%d/%d]" % (username,namecount,len(usernames)))
+	print("Archiving %s, [%d/%d]" % (username,namecount + 1,len(usernames)))
 
 	url = "https://curiouscat.qa/api/v2.1/profile"
 	querystring = {"username":username}
@@ -47,7 +57,7 @@ for namecount, username in enumerate(usernames):
 	print ("Downloading Answers for %s..." % username)
 	#Get Post Archive
 	answercount = fullJson['answers']
-	while True:
+	while True and answercount > 0:
 		try:
 			if fullJson['posts'][-1]['type'] == "post":
 				lastTimestamp = fullJson['posts'][-1]['post']['timestamp']
@@ -82,14 +92,8 @@ for namecount, username in enumerate(usernames):
 	out.write(json.dumps(fullJson))
 
 	#Check For Local Copy
-	while True:
-		yesno = input("Would you like to download all media attached to this CuriousCat Profile [y/n]: ")
-		if yesno.lower() == "yes" or yesno.lower() == "y":
-			break
-		if yesno.lower() == "no" or yesno.lower() == "n":
-			print("Please view the json file using the provided viewer.html file.")
-			quit()
-		pass
+	if downloadLocal == False:
+		break
 
 
 	print("Extracting Links From Json...")
@@ -134,3 +138,5 @@ for namecount, username in enumerate(usernames):
 
 	localfile.write(localJson)
 	localfile.close()
+
+print("Archives can now be viewed using viewer.html")
