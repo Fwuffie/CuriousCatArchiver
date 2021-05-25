@@ -47,7 +47,7 @@ for namecount, username in enumerate(usernames):
 
 	if 'error' in fullJson.keys():
 		print("User '%s' could not be found" % username)
-		break
+		continue
 
 	#Set Directory
 	
