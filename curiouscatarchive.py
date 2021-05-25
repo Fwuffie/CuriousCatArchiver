@@ -4,15 +4,28 @@ import sys
 import re
 import os
 import argparse
+import datetime
+import time
+
+###Setvars
+url = "https://curiouscat.qa/api/v2.1/profile"
+concurrentUserDownloads = 5
 
 initialdir = os.getcwd()
+downloadLocal = None
+
 
 ##ARGUMENT PARSEING###
 parser = argparse.ArgumentParser(prog='ccarchiver', description='Create a local archive of CuriousCat accounts.')
 parser.add_argument('-f', '--file', action='store_true', help='use a file containing a list of usernames on seperate lines instead')
+parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose Output')
+parser.add_argument('-l', '--local', action='store_true', help='Automatically Download Local Copys')
 parser.add_argument('Username', help='The Username of the account to archive, or file containing usernames')
 
 args = vars(parser.parse_args())
+
+if args['local'] == True:
+	downloadLocal = True
 
 if args['file'] == False:
 	usernames = [args['Username']]
@@ -23,40 +36,41 @@ else:
 	f = open(args['Username'])
 	usernames = f.read().splitlines()
 
-downloadLocal = None
 
-while downloadLocal == None:
-	yesno = input("Would you like to download all media attached to the CuriousCat Profile [y/n]: ")
-	if yesno.lower() == "yes" or yesno.lower() == "y":
-		downloadLocal = True
-	if yesno.lower() == "no" or yesno.lower() == "n":
-		print("Please view the json file using the provided viewer.html file.")
-		downloadLocal = False
-	pass
+#Print only if verbose
+def vprint(string):
+	if args['verbose']:
+		print(string)
+	else:
+		print(string + "                          ", end='\r')
+	return
 
-#Main Loop
-for namecount, username in enumerate(usernames):
-	print("Archiving %s, [%d/%d]" % (username,namecount + 1,len(usernames)))
-
-	url = "https://curiouscat.qa/api/v2.1/profile"
+#Main Function to downloadUserAnswers
+def downloadUserAnswers(username):
+	#Get The Main Content Of A User Profile
 	querystring = {"username":username}
-
 	response = requests.request("GET", url, params=querystring)
-
 	fullJson = response.json()
+	if 'error_code' in fullJson.keys():
+		if fullJson['error_code'] == 'profile_does_not_exist':
+			print("User '%s' could not be found, skipping." % username)
+		elif fullJson['error_code'] == 'ratelimited':
+			time.sleep(20)
+			downloadUserAnswers(username)
+		return
 
-	if 'error' in fullJson.keys():
-		print("User '%s' could not be found" % username)
-		continue
+	vprint("Archiving %s" % (username))
 
 	#Set Directory
-	
 	workingdir = os.path.join(initialdir, 'CCArchive%s' % username)
 	if not os.path.exists(workingdir):
 	   os.makedirs(workingdir)
+	
+	while not os.path.exists(workingdir):
+		time.sleep(1)
+
 	os.chdir(workingdir)
 
-	print ("Downloading Answers for %s..." % username)
 	#Get Post Archive
 	answercount = fullJson['answers']
 	while True and answercount > 0:
@@ -84,22 +98,23 @@ for namecount, username in enumerate(usernames):
 
 		fullJson['posts'] = fullJson['posts'] + response.json()['posts']
 
-		print("%d/%d" % (len(fullJson['posts']),answercount))
+		vprint("Downloading Answers for %s [%d/%d]" % (username,len(fullJson['posts']),answercount))
 		pass
 
-
-	print("Saving Raw Json to file: %sAnswers.json" % username)
+	
 	#WriteToFile
+	vprint("Saving %s's Raw Json to file: %sAnswers.json" % (username, username))
 	out = open("%sAnswers.json" % username, 'w')
 	out.write(json.dumps(fullJson))
 
 	#Check For Local Copy
 	if downloadLocal == False:
-		continue
+		return
 
 
-	print("Extracting Links From Json...")
+	
 	#Extracts Links From Raw JSON
+	vprint("Extracting %s's Links From Json..." % (username))
 	jsonraw = json.dumps(fullJson)
 
 	regexQuery = '(https?://[^ ]*?\.curiouscat.qa/.+?)"'
@@ -113,10 +128,7 @@ for namecount, username in enumerate(usernames):
 			links.append(link)
 
 
-	print("Downloading Images...")
 	#Download Local Copy of images
-
-
 	media_directory = os.path.join(workingdir, 'Media')
 	if not os.path.exists(media_directory):
 	   os.makedirs(media_directory)
@@ -126,13 +138,13 @@ for namecount, username in enumerate(usernames):
 		linkpath = re.sub('(/|https?://[^ ]*?\.curiouscat.qa/)', '', link)
 		response = requests.get(link)
 
-		print("Downloading %d/%d" % (index + 1, len(links)))
+		vprint("Downloading %s's Images [%d/%d]..." % (username, index + 1, len(links)))
 		with open('Media/' + linkpath, 'wb') as f:
 			f.write(response.content)
 
 
-	print("Replacing Links...")
 	#Create Copy of Json With Links Replaced
+	vprint("Creating Local Copy Of %s's File..." % (username))
 	localfile = open("local%sAnswers.json" % (username), 'w')
 
 	localJson = re.split(r'(https?://[^ ]*?\.curiouscat.qa/.+?)"', jsonraw)
@@ -140,5 +152,58 @@ for namecount, username in enumerate(usernames):
 
 	localfile.write(localJson)
 	localfile.close()
+	return
 
-print("Archives can now be viewed using viewer.html")
+
+#def run_parallel():
+#	'''
+#	Run functions in parallel
+#	'''
+#	from multiprocessing import Process
+#	processes = []
+#	for namecount, username in enumerate(usernames):
+#		print("Archiving %s, [%d/%d]" % (username,namecount + 1,len(usernames)))
+#		proc = Process(target=downloadUserAnswers, args=(username,))		
+#		processes.append(proc)
+#		proc.start()
+#	for p in processes:
+#		p.join()
+
+def downloadUserAnswersCatcher(username):
+	try:
+		downloadUserAnswers(username)
+		pass
+	except KeyboardInterrupt:
+		quit()
+
+
+if __name__ == '__main__':
+	while downloadLocal == None:
+		yesno = input("Would you like to download all media attached to the CuriousCat Profile [y/n]: ")
+		if yesno.lower() == "yes" or yesno.lower() == "y":
+			downloadLocal = True
+		if yesno.lower() == "no" or yesno.lower() == "n":
+			print("Please view the json file using the provided viewer.html file.")
+			downloadLocal = False
+		pass
+
+
+	from multiprocessing import Pool
+	try:
+		pool = Pool(processes=concurrentUserDownloads)
+		pool.map(downloadUserAnswers, usernames)
+		#run_parallel()
+	except KeyboardInterrupt:
+		pool.close()
+		pool.terminate()
+		pool.join()
+		print('Exited By User')
+		quit()
+
+
+#Main Loop
+#for namecount, username in enumerate(usernames):
+#	print("Archiving %s, [%d/%d]" % (username,namecount + 1,len(usernames)))
+#	downloadUserAnswers(username)
+
+#print("Archives can now be viewed using viewer.html")
