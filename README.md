@@ -1,13 +1,16 @@
 # CuriousCatArchiver
 A tool to archive public CuriousCat answer feeds
 
-Use:
-  curiouscatarchive.py <username>  
-to download an archive of that users answers
+usage: ccarchiver [-h] [-f] Username
 
-Optionally, use:
-  imageDL.sh <jsonfile>
-to download a local copy of all the curious cat assets, and create a copy of the json file, that uses the local assets.
+Create a local archive of CuriousCat accounts.
+
+positional arguments:
+  Username    The Username of the account to archive, or file containing usernames
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -f, --file  use a file containing a list of usernames on seperate lines instead
   
 Finally the viewer.html file can be used to load and view either json file, like a regular curious cat feed.
 
