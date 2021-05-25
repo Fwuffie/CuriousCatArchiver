@@ -5,6 +5,8 @@ import re
 import os
 import argparse
 
+initialdir = os.getcwd()
+
 ##ARGUMENT PARSEING###
 parser = argparse.ArgumentParser(prog='ccarchiver', description='Create a local archive of CuriousCat accounts.')
 parser.add_argument('-f', '--file', action='store_true', help='use a file containing a list of usernames on seperate lines instead')
@@ -48,8 +50,8 @@ for namecount, username in enumerate(usernames):
 		break
 
 	#Set Directory
-	workingdir = os.getcwd()
-	workingdir = os.path.join(workingdir, '%sCCArchive' % username)
+	
+	workingdir = os.path.join(initialdir, 'CCArchive%s' % username)
 	if not os.path.exists(workingdir):
 	   os.makedirs(workingdir)
 	os.chdir(workingdir)
@@ -93,7 +95,7 @@ for namecount, username in enumerate(usernames):
 
 	#Check For Local Copy
 	if downloadLocal == False:
-		break
+		continue
 
 
 	print("Extracting Links From Json...")
@@ -134,7 +136,7 @@ for namecount, username in enumerate(usernames):
 	localfile = open("local%sAnswers.json" % (username), 'w')
 
 	localJson = re.split(r'(https?://[^ ]*?\.curiouscat.qa/.+?)"', jsonraw)
-	localJson = ''.join(['%sCCArchive/Media/%s"' % (username, re.sub('(https?:/?/?[^ ]*?\.curiouscat.qa)|/', '', string)) if re.match(r'(https?://[^ ]*?\.curiouscat.qa/.+?)', string) != None else string for string in localJson])
+	localJson = ''.join(['CCArchive%s/Media/%s"' % (username, re.sub('(https?:/?/?[^ ]*?\.curiouscat.qa)|/', '', string)) if re.match(r'(https?://[^ ]*?\.curiouscat.qa/.+?)', string) != None else string for string in localJson])
 
 	localfile.write(localJson)
 	localfile.close()
