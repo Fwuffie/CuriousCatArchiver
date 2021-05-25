@@ -4,7 +4,7 @@ import sys
 import re
 import os
 import argparse
-import datetime
+from datetime import datetime
 import time
 
 ###Setvars
@@ -59,7 +59,8 @@ def downloadUserAnswers(username):
 			downloadUserAnswers(username)
 		return
 
-	vprint("Archiving %s" % (username))
+	time = datetime.now()
+	vprint("Archiving %s at %s" % (username, time.strftime("%Y/%m/%d %H:%M:%S")))
 
 	#Set Directory
 	workingdir = os.path.join(initialdir, 'CCArchive%s' % username)
@@ -103,8 +104,8 @@ def downloadUserAnswers(username):
 
 	
 	#WriteToFile
-	vprint("Saving %s's Raw Json to file: %sAnswers.json" % (username, username))
-	out = open("%sAnswers.json" % username, 'w')
+	vprint("Saving %s's Raw Json to file: %sAnswers%s.json" % (username, username, time.strftime("%Y%m%d-%H%M%S")))
+	out = open("%sAnswers%s.json" % (username, time.strftime("%Y%m%d-%H%M%S")), 'w')
 	out.write(json.dumps(fullJson))
 
 	#Check For Local Copy
@@ -145,7 +146,7 @@ def downloadUserAnswers(username):
 
 	#Create Copy of Json With Links Replaced
 	vprint("Creating Local Copy Of %s's File..." % (username))
-	localfile = open("local%sAnswers.json" % (username), 'w')
+	localfile = open("local%sAnswers%s.json" % (username, time.strftime("%Y%m%d-%H%M%S")), 'w')
 
 	localJson = re.split(r'(https?://[^ ]*?\.curiouscat.qa/.+?)"', jsonraw)
 	localJson = ''.join(['CCArchive%s/Media/%s"' % (username, re.sub('(https?:/?/?[^ ]*?\.curiouscat.qa)|/', '', string)) if re.match(r'(https?://[^ ]*?\.curiouscat.qa/.+?)', string) != None else string for string in localJson])
