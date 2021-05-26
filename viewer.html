@@ -298,7 +298,7 @@
 			//Clone Template Panel
 			var clone = templateAnswerPanel.cloneNode(true); // "deep" clone
 		    clone.id = "panel" + panelID; // there can only be one element with an ID
-
+		    clone.classList.add('loaded');
 		    //Set Panel to visible
 		    clone.style = ""
 
@@ -359,6 +359,11 @@
 
 		function jsonLoader(json) {
 			loadUserData(json.username, json.followers, json.answers, json.following, json.banner, json.avatar)
+
+			existingPanels = Array.from(document.getElementsByClassName('loaded'))
+			existingPanels.forEach( function(entry) {
+				entry.remove();
+			});
 
 			jsonObj.posts.forEach( function(entry) {
 				try {
