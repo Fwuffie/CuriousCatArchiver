@@ -5,11 +5,11 @@ import re
 import os
 import argparse
 from datetime import datetime
-import time
+from time import sleep
+from multiprocessing import Pool, Manager
 
 ###Setvars
 url = "https://curiouscat.qa/api/v2.1/profile"
-concurrentUserDownloads = 5
 
 initialdir = os.getcwd()
 downloadLocal = None
@@ -20,6 +20,7 @@ parser = argparse.ArgumentParser(prog='ccarchiver', description='Create a local 
 parser.add_argument('-f', '--file', action='store_true', help='use a file containing a list of usernames on seperate lines instead')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose Output')
 parser.add_argument('-l', '--local', action='store_true', help='Automatically Download Local Copys')
+parser.add_argument('-n', '--concurrentDownloads', type=int, default=5, help='Number of Accounts To Download At Once (Default: 5)')
 parser.add_argument('Username', help='The Username of the account to archive, or file containing usernames')
 
 args = vars(parser.parse_args())
@@ -37,13 +38,6 @@ else:
 	usernames = f.read().splitlines()
 
 
-#Print only if verbose
-def vprint(string):
-	if args['verbose']:
-		print(string)
-	else:
-		print(string + "                          ", end='\r')
-	return
 
 #Main Function to downloadUserAnswers
 def downloadUserAnswers(username):
@@ -54,13 +48,16 @@ def downloadUserAnswers(username):
 	if 'error_code' in fullJson.keys():
 		if fullJson['error_code'] == 'profile_does_not_exist':
 			print("User '%s' could not be found, skipping." % username)
+			status['_progress_counter'] += 1
+			updateStatus()
 		elif fullJson['error_code'] == 'ratelimited':
-			time.sleep(20)
+			print('ratelimited, waiting 60 seconds to retry...')
+			sleep(60)
 			downloadUserAnswers(username)
 		return
 
 	time = datetime.now()
-	vprint("Archiving %s at %s" % (username, time.strftime("%Y/%m/%d %H:%M:%S")))
+	updateStatus(username, "Archiving %s at %s" % (username, time.strftime("%Y/%m/%d %H:%M:%S")))
 
 	#Set Directory
 	workingdir = os.path.join(initialdir, 'CCArchive%s' % username)
@@ -68,7 +65,7 @@ def downloadUserAnswers(username):
 	   os.makedirs(workingdir)
 	
 	while not os.path.exists(workingdir):
-		time.sleep(1)
+		sleep(1)
 
 	os.chdir(workingdir)
 
@@ -99,23 +96,25 @@ def downloadUserAnswers(username):
 
 		fullJson['posts'] = fullJson['posts'] + response.json()['posts']
 
-		vprint("Downloading Answers for %s [%d/%d]" % (username,len(fullJson['posts']),answercount))
+		updateStatus(username, "Downloading Answers [%d/%d]" % (len(fullJson['posts']),answercount))
 		pass
 
 	
 	#WriteToFile
-	vprint("Saving %s's Raw Json to file: %sAnswers%s.json" % (username, username, time.strftime("%Y%m%d-%H%M%S")))
+	updateStatus(username, "Saving Raw Json to file: %sAnswers%s.json" % (username, time.strftime("%Y%m%d-%H%M%S")))
 	out = open("%sAnswers%s.json" % (username, time.strftime("%Y%m%d-%H%M%S")), 'w')
 	out.write(json.dumps(fullJson))
 
 	#Check For Local Copy
 	if downloadLocal == False:
+		status['_progress_counter'] += 1
+		updateStatus()
 		return
 
 
 	
 	#Extracts Links From Raw JSON
-	vprint("Extracting %s's Links From Json..." % (username))
+	updateStatus(username, "Extracting Links From Json...")
 	jsonraw = json.dumps(fullJson)
 
 	regexQuery = '(https?://[^ ]*?\.curiouscat.qa/.+?)"'
@@ -139,13 +138,13 @@ def downloadUserAnswers(username):
 		linkpath = re.sub('(/|https?://[^ ]*?\.curiouscat.qa/)', '', link)
 		response = requests.get(link)
 
-		vprint("Downloading %s's Images [%d/%d]..." % (username, index + 1, len(links)))
+		updateStatus(username, "Downloading Images [%d/%d]..." % (index + 1, len(links)))
 		with open('Media/' + linkpath, 'wb') as f:
 			f.write(response.content)
 
 
 	#Create Copy of Json With Links Replaced
-	vprint("Creating Local Copy Of %s's File..." % (username))
+	updateStatus(username, "Creating Local Copy Of File...")
 	localfile = open("local%sAnswers%s.json" % (username, time.strftime("%Y%m%d-%H%M%S")), 'w')
 
 	localJson = re.split(r'(https?://[^ ]*?\.curiouscat.qa/.+?)"', jsonraw)
@@ -153,32 +152,36 @@ def downloadUserAnswers(username):
 
 	localfile.write(localJson)
 	localfile.close()
+	status['_progress_counter'] += 1
+	updateStatus(username, None)
 	return
 
 
-#def run_parallel():
-#	'''
-#	Run functions in parallel
-#	'''
-#	from multiprocessing import Process
-#	processes = []
-#	for namecount, username in enumerate(usernames):
-#		print("Archiving %s, [%d/%d]" % (username,namecount + 1,len(usernames)))
-#		proc = Process(target=downloadUserAnswers, args=(username,))		
-#		processes.append(proc)
-#		proc.start()
-#	for p in processes:
-#		p.join()
 
-def downloadUserAnswersCatcher(username):
-	try:
-		downloadUserAnswers(username)
-		pass
-	except KeyboardInterrupt:
-		quit()
+def updateStatus(username, Message):
+	if Message == None:
+		del status[username]
+	else:
+		status[username] = Message
 
+	if not args['verbose']:
+		os.system('cls' if os.name == 'nt' else 'clear')
+
+	print("%d/%d Users Archived" % (status['_progress_counter'], len(usernames))) #, end="\r")
+	#For Each Current Process Print
+	for user in status.keys():
+		if user != '_progress_counter':
+			print("%s: %s" % (user, status[user]))
+	# "%s: (Downloading Posts [%x/%y]|Extracting Links From Json|Downloading Images [%x/%y]|Saving Json)"
+	return
+
+manager = Manager()
+status = manager.dict()
+status['_progress_counter'] = 0
 
 if __name__ == '__main__':
+
+	#If Not Set, Confirm Local Downloads
 	while downloadLocal == None:
 		yesno = input("Would you like to download all media attached to the CuriousCat Profile [y/n]: ")
 		if yesno.lower() == "yes" or yesno.lower() == "y":
@@ -189,11 +192,10 @@ if __name__ == '__main__':
 		pass
 
 
-	from multiprocessing import Pool
+	print("Downloading Archives For %d Users" % len(usernames))
 	try:
-		pool = Pool(processes=concurrentUserDownloads)
-		pool.map(downloadUserAnswers, usernames)
-		#run_parallel()
+		pool = Pool(processes=args['concurrentDownloads'])
+		ts = pool.map(downloadUserAnswers, usernames)
 	except KeyboardInterrupt:
 		pool.close()
 		pool.terminate()
@@ -201,10 +203,4 @@ if __name__ == '__main__':
 		print('Exited By User')
 		quit()
 
-
-#Main Loop
-#for namecount, username in enumerate(usernames):
-#	print("Archiving %s, [%d/%d]" % (username,namecount + 1,len(usernames)))
-#	downloadUserAnswers(username)
-
-#print("Archives can now be viewed using viewer.html")
+	print("Archives can now be viewed using viewer.html")
