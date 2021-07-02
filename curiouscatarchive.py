@@ -100,15 +100,37 @@ def downloadUserAnswers(username):
 		pass
 
 	
+
+	#If Possible, Open Old Json File And Combine Posts
+	if os.path.isfile('%sAnswers.json' % username):
+		print("Matching with Old Copy")
+		f = open("%sAnswers.json" % (username), 'r')
+		rawjson = f.read()
+		oldJson = json.loads(rawjson)
+
+		#Mark All New Posts As Not Deleted
+		for post in fullJson['posts']:
+			post['Deleted'] = False
+
+		#Mark All Old Posts As Deleted
+		for post in oldJson['posts']:
+			post['Deleted'] = True
+
+		fullJson['posts'] = oldJson['posts'].update(fullJson['posts'])
+		
+
+
+
 	#WriteToFile
-	updateStatus(username, "Saving Raw Json to file: %sAnswers%s.json" % (username, time.strftime("%Y%m%d-%H%M%S")))
-	out = open("%sAnswers%s.json" % (username, time.strftime("%Y%m%d-%H%M%S")), 'w')
+	updateStatus(username, "Saving Raw Json to file...")
+	out = open("%sAnswers.json" % (username), 'w')
 	out.write(json.dumps(fullJson))
+	out.close()
 
 	#Check For Local Copy
 	if downloadLocal == False:
 		status['_progress_counter'] += 1
-		updateStatus()
+		updateStatus(username, None)
 		return
 
 
@@ -129,23 +151,28 @@ def downloadUserAnswers(username):
 
 
 	#Download Local Copy of images
+	##Create The Media Directory
 	media_directory = os.path.join(workingdir, 'Media')
 	if not os.path.exists(media_directory):
 	   os.makedirs(media_directory)
 
-
+	##For Each Link Download The Image
 	for index, link in enumerate(links):
 		linkpath = re.sub('(/|https?://[^ ]*?\.curiouscat.qa/)', '', link)
+
+		#if os.path.isfile("/Media/%s" % linkpath):
+		#	continue
+		updateStatus(username, "Downloading Images [%d/%d]..." % (index + 1, len(links)))
+
 		response = requests.get(link)
 
-		updateStatus(username, "Downloading Images [%d/%d]..." % (index + 1, len(links)))
 		with open('Media/' + linkpath, 'wb') as f:
 			f.write(response.content)
 
 
 	#Create Copy of Json With Links Replaced
 	updateStatus(username, "Creating Local Copy Of File...")
-	localfile = open("local%sAnswers%s.json" % (username, time.strftime("%Y%m%d-%H%M%S")), 'w')
+	localfile = open("local%sAnswers.json" % (username), 'w')
 
 	localJson = re.split(r'(https?://[^ ]*?\.curiouscat.qa/.+?)"', jsonraw)
 	localJson = ''.join(['CCArchive%s/Media/%s"' % (username, re.sub('(https?:/?/?[^ ]*?\.curiouscat.qa)|/', '', string)) if re.match(r'(https?://[^ ]*?\.curiouscat.qa/.+?)', string) != None else string for string in localJson])
@@ -157,7 +184,7 @@ def downloadUserAnswers(username):
 	return
 
 
-
+#Print The Current Status To Stdout
 def updateStatus(username, Message):
 	if Message == None:
 		del status[username]
@@ -180,7 +207,6 @@ status = manager.dict()
 status['_progress_counter'] = 0
 
 if __name__ == '__main__':
-
 	#If Not Set, Confirm Local Downloads
 	while downloadLocal == None:
 		yesno = input("Would you like to download all media attached to the CuriousCat Profile [y/n]: ")
