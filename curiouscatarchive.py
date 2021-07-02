@@ -108,7 +108,7 @@ def downloadUserAnswers(username):
 	#Check For Local Copy
 	if downloadLocal == False:
 		status['_progress_counter'] += 1
-		updateStatus()
+		updateStatus(username, None)
 		return
 
 
